@@ -183,7 +183,7 @@ public class AIGeneratorService {
         String context = request.getAdditionalContext() != null ? request.getAdditionalContext() : "";
 
         return String.format("""
-Buatkan Rencana Pembelajaran Semester (RPS) lengkap untuk mata kuliah berikut:
+Anda adalah ahli kurikulum pendidikan tinggi Indonesia. Buatkan Rencana Pembelajaran Semester (RPS) lengkap untuk mata kuliah berikut:
 
 ## Informasi Mata Kuliah:
 - Nama: %s
@@ -192,33 +192,63 @@ Buatkan Rencana Pembelajaran Semester (RPS) lengkap untuk mata kuliah berikut:
 - Semester: %d
 - Status: %s
 - Prasyarat: %s
-
-## Konteks Tambahan:
+- Konteks tambahan:
 %s
 
 ## Instruksi:
-Buatkan RPS dalam format JSON dengan struktur berikut:
+Buatkan RPS dalam format JSON dengan struktur PERSIS seperti berikut. PENTING: Hanya output JSON murni tanpa markdown code block.
 
 {
-  "deskripsi": "Deskripsi mata kuliah 3-5 kalimat",
-  "cpl": [{"kode": "CPL 1", "pernyataan": "Capaian Pembelajaran Lulusan"}],
-  "ik": [{"kode": "IK 1", "pernyataan": "Indikator kinerja", "mapping_cpl": "CPL 1", "mapping_cpmk": "CPMK 1"}],
-  "cpmk": [{"kode": "CPMK 1", "pernyataan": "Capaian spesifik", "mapping_cpl": ["CPL 1", "CPL 2"], "n1": 5, "n2": 5, "n3": 5, "n4": 5, "n5": 0}],
-  "minggu": [
-    {"minggu": 1, "mapping_cpmk": "CPMK 1", "materi": "Topik", "kemampuan_akhir": "...", "indikator": "...", "metode": "TM SCL", "waktu": 150, "pengalaman_belajar": "...", "penilaian": "...", "bobot": 7, "referensi": "1, 2"},
-    {"minggu": 8, "mapping_cpmk": "", "materi": "Ujian Tengah Semester (UTS)", "kemampuan_akhir": "", "indikator": "", "metode": "", "waktu": 0, "pengalaman_belajar": "", "penilaian": "", "bobot": 0, "referensi": ""},
-    {"minggu": 16, "mapping_cpmk": "", "materi": "Ujian Akhir Semester (UAS)", "kemampuan_akhir": "", "indikator": "", "metode": "", "waktu": 0, "pengalaman_belajar": "", "penilaian": "", "bobot": 0, "referensi": ""}
+  "deskripsi": "Deskripsi mata kuliah 3-5 kalimat yang menjelaskan tujuan, cakupan, dan manfaat mata kuliah ini bagi mahasiswa",
+  
+  "cpl": [
+    {"kode": "CPL 1", "pernyataan": "Capaian Pembelajaran Lulusan yang relevan dengan mata kuliah"}
   ],
-  "referensi": [{"nomor": 1, "judul": "Judul Buku", "penulis": "Nama Penulis", "tahun": 2023, "penerbit": "Penerbit", "kota": "Jakarta", "isbn": "", "jenis": "Utama"}]
+  
+  "ik": [
+    {"kode": "IK 1-1", "pernyataan": "Indikator kinerja spesifik untuk CPL 1 dan CPMK 1", "mapping_cpl": "CPL 1", "mapping_cpmk": "CPMK 1"}
+  ],
+
+  "cpmk": [
+    {"kode": "CPMK 1", "pernyataan": "Mahasiswa mampu [capaian spesifik]", "mapping_cpl": "CPL1", "N1": 5, "N2": 5, "N3": 5, "N4": 5, "N5": 0, "N_cpmk": 30}
+  ],
+
+  "minggu": [
+    {"mingguKe": 1, "kemampuanAkhir": "CPMK 1", "bahanKajian": "Topik minggu 1", "metodePembelajaran": {"metode": "TM SCL", "deskripsi": "peran dosen dalam metode pembelajaran", "aktivitas": "aktivitas mahasiswa dalam metode pembelajaran"}, "waktu": "TM Ceramah 1x50', Kuis, Tugas Mandiri", "pengalamanBelajar": "pengalaman belajar mahasiswa", "penilaian": {"kriteria": "kriteria indikator pencapaian", "bobot": 5}},
+    {"mingguKe": 8, "kemampuanAkhir": "UTS", "bahanKajian": "Ujian Tengah Semester (UTS)", "metodePembelajaran": {"metode": "Ujian", "deskripsi": "Ujian untuk mengukur pemahaman terhadap materi minggu 1-7", "aktivitas": "Mengerjakan soal ujian"}, "waktu": "3x50'", "pengalamanBelajar": "UTS", "penilaian": {"kriteria": "UTS", "bobot": 20}},
+    {"mingguKe": 16, "kemampuanAkhir": "UAS", "bahanKajian": "Ujian Akhir Semester (UAS)", "metodePembelajaran": {"metode": "Ujian", "deskripsi": "Ujian akhir semester dengan demo proyek dan presentasi hasil pembelajaran", "aktivitas": "Demo proyek dan presentasi hasil pembelajaran"}, "waktu": "3x50'", "pengalamanBelajar": "UAS", "penilaian": {"kriteria": "UAS", "bobot": 20}}
+  ],
+    
+  "referensi": [
+    {"nomor": 1, "judul": "Judul Buku", "penulis": "Nama Penulis", "tahun": 2023, "penerbit": "Nama Penerbit", "kota": "Jakarta", "isbn": "", "jenis": "Utama"}
+  ]
 }
 
-## Catatan:
+## Catatan Penting:
 - Gunakan bahasa Indonesia yang baik dan akademis
-- 16 minggu (14 pertemuan + UTS minggu 8 + UAS minggu 16)
-- Total bobot dari semua minggu = 100%%
-- Metode: TM SCL, CBL, PBL, PjBL
-- Output JSON saja tanpa markdown
-""", courseName, courseCode, sks, semester, status, prereq, context);
+- Konten harus relevan dengan "%s"
+- Pastikan semua 16 minggu terisi lengkap (14 pertemuan + UTS minggu 8 + UAS minggu 16)
+- Minggu 8 = UTS, Minggu 16 = UAS (hanya ada field mingguKe, kemampuanAkhir, bahanKajian, metodePembelajaran, waktu, pengalamanBelajar, penilaian)
+- N1(Partisipatif 20%%), N2(Project/Problem/Case Based Learning 30%%), N3(Kuis 10%%), N4(UTS 20%%), N5(UAS 20%%)
+- Total N1 dari semua CPMK harus 20%%, N2-N5 juga sama sesuai proporsi di atas
+- Total bobot penilaian = 100%% dari N_cpmk semua CPMK
+- Format kode CPL (CPL 1, CPL 2), CPMK (CPMK 1, CPMK 2), IK (IK 1-1, IK 2-1)
+- Mapping: CPMK memetakan ke CPL, IK memetakan ke CPMK
+- Setiap minggu (selain UTS/UAS) harus ada semua field lengkap
+- Total bobot dari semua minggu (14 pertemuan) harus 100%%
+- WAJIB untuk setiap minggu (selain UTS/UAS):
+   - "metodePembelajaran.metode": pilih 1 dari: TM SCL, CBL (Case Based Learning), PBL (Problem Based Learning), PjBL (Project Based Learning)
+   - "metodePembelajaran.deskripsi": minimal 15 kata menjelaskan peran dosen dalam metode pembelajaran
+   - "metodePembelajaran.aktivitas": minimal 15 kata menjelaskan aktivitas mahasiswa
+   - "pengalamanBelajar": minimal 25 kata pengalaman belajar yang didapat mahasiswa
+   - "penilaian.kriteria": minimal 20 kata kriteria penilaian yang jelas
+   - "penilaian.bobot": setiap bobot dari beberapa minggu untuk satu CPMK dijumlahkan harus sesuai N_cpmk
+   - "bahanKajian": sesuai dengan course_name dan relevan dengan CPMK yang dituju, spesifik dan bervariasi setiap minggu
+   - "waktu": untuk mata kuliah teori gunakan format "TM Ceramah %dx50', Kuis, Tugas Mandiri" atau variasi CBL/PBL/PjBL sesuai metode
+- Untuk mata kuliah Praktikum, variasikan metode pembelajaran dan gunakan format waktu "Praktikum %dx170', Hands-on, Laporan"
+- Referensi harus mencakup: 1 buku internasional, 2-3 buku nasional, 2 jurnal internasional, 2 jurnal nasional
+- Output JSON saja, tanpa markdown formatting atau penjelasan.
+""", courseName, courseCode, sks, semester, status, prereq, context, courseName);
     }
 
     private String buildCPLPrompt(GenerateRequestDTO request) {
@@ -299,6 +329,8 @@ Buat 3-6 CPMK. Output JSON saja.
         }
 
         return String.format("""
+Anda adalah ahli kurikulum pendidikan tinggi Indonesia.
+
 Generate Rencana Pembelajaran Mingguan untuk:
 - Mata Kuliah: %s
 - SKS: %d
@@ -308,30 +340,26 @@ CPMK:
 
 Konteks: %s
 
-Output format JSON dengan 16 minggu:
-{
-  "minggu": [
-    {
-      "minggu": 1,
-      "mapping_cpmk": "CPMK 1",
-      "materi": "Pengantar dan dasar-dasar",
-      "kemampuan_akhir": "Mahasiswa mampu memahami konsep dasar",
-      "indikator": "Dapat menjelaskan konsep dasar",
-      "metode": "TM SCL",
-      "waktu": %d,
-      "pengalaman_belajar": "Mahasiswa mempelajari konsep dasar melalui kuliah dan diskusi",
-      "penilaian": "Tugas dan kuis",
-      "bobot": 7,
-      "referensi": "1, 2"
-    },
-    {"minggu": 8, "mapping_cpmk": "", "materi": "Ujian Tengah Semester (UTS)", "kemampuan_akhir": "", "indikator": "", "metode": "", "waktu": 0, "pengalaman_belajar": "", "penilaian": "", "bobot": 0, "referensi": ""},
-    {"minggu": 16, "mapping_cpmk": "", "materi": "Ujian Akhir Semester (UAS)", "kemampuan_akhir": "", "indikator": "", "metode": "", "waktu": 0, "pengalaman_belajar": "", "penilaian": "", "bobot": 0, "referensi": ""}
-  ]
-}
+Output format JSON dengan 16 minggu (EXACT field names):
+[
+  {"mingguKe": 1, "kemampuanAkhir": "CPMK 1", "bahanKajian": "Pengenalan dan konsep dasar", "metodePembelajaran": {"metode": "Ceramah", "deskripsi": "Penyampaian konsep fundamental melalui presentasi interaktif dengan melibatkan mahasiswa dalam diskusi materi", "aktivitas": "Mendengarkan penjelasan konsep dasar dan diskusi mendalam tentang prinsip fundamental mata kuliah"}, "waktu": "%dx50'", "pengalamanBelajar": "Memahami terminologi dasar mengingat definisi konsep fundamental mengikuti presentasi diskusi kelas", "penilaian": {"kriteria": "Pemahaman konsep dasar ketepatan definisi keterlibatan dalam diskusi kelas", "bobot": 5}},
+  {"mingguKe": 8, "kemampuanAkhir": "UTS", "bahanKajian": "Ujian Tengah Semester (UTS)", "metodePembelajaran": {"metode": "Ujian", "deskripsi": "Penilaian tertulis komprehensif mencakup seluruh materi minggu 1-7 untuk mengukur kompetensi dasar", "aktivitas": "Pelaksanaan ujian tulis sesuai jadwal akademik dan evaluasi penguasaan materi"}, "waktu": "%dx50'", "pengalamanBelajar": "UTS", "penilaian": {"kriteria": "Ketepatan jawaban pemahaman konsep penguasaan materi dan kedalaman analisis", "bobot": 20}},
+  {"mingguKe": 16, "kemampuanAkhir": "UAS", "bahanKajian": "Ujian Akhir Semester: demo proyek dan presentasi hasil pembelajaran", "metodePembelajaran": {"metode": "Ujian", "deskripsi": "Penilaian akhir semester melalui demo proyek integrasi dan presentasi hasil pembelajaran keseluruhan", "aktivitas": "Pelaksanaan ujian akhir semester termasuk demo proyek dan presentasi hasil pembelajaran akhir"}, "waktu": "%dx50'", "pengalamanBelajar": "UAS", "penilaian": {"kriteria": "Kualitas proyek demo presentasi integrasi dan pemahaman holistik", "bobot": 20}}
+]
 
-Metode: TM SCL, CBL, PBL, PjBL
-Total bobot = 100%%. Output JSON saja.
-""", courseName, sks, cpmkInfo, context, sks * 50);
+Catatan Penting:
+- WAJIB setiap minggu (selain UTS/UAS):
+  - "metodePembelajaran.metode": pilih 1 dari: Ceramah, Diskusi, Praktikum, Kuis, Tugas, PBL, CBL, PjBL
+  - "metodePembelajaran.deskripsi": HARUS 20+ kata penjelasan metode pembelajaran
+  - "metodePembelajaran.aktivitas": HARUS 20+ kata penjelasan aktivitas mahasiswa
+  - "pengalamanBelajar": HARUS 20+ kata pengalaman belajar mahasiswa
+  - "penilaian.kriteria": HARUS 20+ kata kriteria indikator pencapaian
+- Total bobot semua minggu (14 pertemuan) = 100%%
+- Minggu 8 = UTS (bobot 20%%), Minggu 16 = UAS (bobot 20%%)
+- Distribusi bobot 14 pertemuan + 2 ujian = 100%%
+- Konten relevan dengan "%s"
+- Output JSON PURE tanpa markdown
+""", courseName, sks, cpmkInfo, context, sks, sks, sks, courseName);
     }
 
     private String buildReferencesPrompt(GenerateRequestDTO request) {

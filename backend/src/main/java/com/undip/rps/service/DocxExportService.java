@@ -289,7 +289,7 @@ public class DocxExportService {
         setTableWidth(table, 14400); // Wider table
 
         // Header
-        String[] headers = {"Minggu", "CPMK", "Materi", "Kemampuan Akhir", "Metode", "Waktu", "Penilaian", "Bobot"};
+        String[] headers = {"Minggu", "Kemampuan Akhir", "Bahan Kajian", "Metode", "Waktu", "Pengalaman Belajar", "Kriteria Penilaian", "Bobot"};
         for (int i = 0; i < headers.length; i++) {
             setCellText(table.getRow(0).getCell(i), headers[i], true);
         }
@@ -298,16 +298,26 @@ public class DocxExportService {
             var minggu = mingguList.get(i);
             XWPFTableRow row = table.getRow(i + 1);
 
-            setCellText(row.getCell(0), String.valueOf(minggu.getMinggu()), false);
-            setCellText(row.getCell(1), minggu.getMappingCpmk() != null ? minggu.getMappingCpmk() : "", false);
-            setCellText(row.getCell(2), minggu.getMateri() != null ? minggu.getMateri() : "", false);
-            setCellText(row.getCell(3), minggu.getKemampuanAkhir() != null ? minggu.getKemampuanAkhir() : "", false);
-            setCellText(row.getCell(4), minggu.getMetode() != null ? minggu.getMetode() : "", false);
-            setCellText(row.getCell(5), minggu.getWaktu() != null ? minggu.getWaktu() + " menit" : "", false);
-            setCellText(row.getCell(6), minggu.getPenilaian() != null ? minggu.getPenilaian() : "", false);
+            setCellText(row.getCell(0), String.valueOf(minggu.getMingguKe()), false);
+            setCellText(row.getCell(1), minggu.getKemampuanAkhir() != null ? minggu.getKemampuanAkhir() : "", false);
+            setCellText(row.getCell(2), minggu.getBahanKajian() != null ? minggu.getBahanKajian() : "", false);
             
-            double bobot = minggu.getBobot() != null ? minggu.getBobot() : 0;
-            setCellText(row.getCell(7), String.format("%.1f%%", bobot), false);
+            String metode = "";
+            if (minggu.getMetodePembelajaran() != null && minggu.getMetodePembelajaran().getMetode() != null) {
+                metode = minggu.getMetodePembelajaran().getMetode();
+            }
+            setCellText(row.getCell(3), metode, false);
+            setCellText(row.getCell(4), minggu.getWaktu() != null ? minggu.getWaktu() : "", false);
+            setCellText(row.getCell(5), minggu.getPengalamanBelajar() != null ? minggu.getPengalamanBelajar() : "", false);
+            
+            String kriteria = "";
+            if (minggu.getPenilaian() != null && minggu.getPenilaian().getKriteria() != null) {
+                kriteria = minggu.getPenilaian().getKriteria();
+            }
+            setCellText(row.getCell(6), kriteria, false);
+            
+            int bobot = minggu.getPenilaian() != null && minggu.getPenilaian().getBobot() != null ? minggu.getPenilaian().getBobot() : 0;
+            setCellText(row.getCell(7), String.format("%d%%", bobot), false);
         }
     }
 

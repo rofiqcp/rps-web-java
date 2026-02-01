@@ -121,20 +121,37 @@ public class RPSDataDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MingguDTO {
-        private Integer minggu;
-        @JsonProperty("mapping_cpmk")
-        private String mappingCpmk;
-        private String materi;
-        @JsonProperty("kemampuan_akhir")
+        @JsonProperty("mingguKe")
+        private Integer mingguKe;
+        @JsonProperty("kemampuanAkhir")
         private String kemampuanAkhir;
-        private String indikator;
-        private String metode;
-        private Integer waktu;
-        @JsonProperty("pengalaman_belajar")
+        @JsonProperty("bahanKajian")
+        private String bahanKajian;
+        @JsonProperty("metodePembelajaran")
+        private MetodePembelajaranDTO metodePembelajaran;
+        private String waktu;
+        @JsonProperty("pengalamanBelajar")
         private String pengalamanBelajar;
-        private String penilaian;
-        private Double bobot;
-        private String referensi;
+        private PenilaianDTO penilaian;
+    }
+    
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MetodePembelajaranDTO {
+        private String metode;
+        private String deskripsi;
+        private String aktivitas;
+    }
+    
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PenilaianDTO {
+        private String kriteria;
+        private Integer bobot;
     }
     
     @Data
